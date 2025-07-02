@@ -10,6 +10,7 @@ const LinkSchema = new mongoose.Schema({
   autoAccept: { type: Boolean, default: false },
   requireSenderName: { type: Boolean, default: false },
   password: { type: String, default: null },
+  title: { type: String, default: "" },
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -1,7 +1,7 @@
 import express from "express";
 import { nanoid } from "nanoid";
 
-import Link from "../models/Link.js";
+import Link from "../../models/Link.js";
 
 const router = express.Router();
 
@@ -16,6 +16,7 @@ router.post("/", async (req, res) => {
       autoAccept,
       requireSenderName,
       password,
+      title,
     } = req.body;
 
     const uniqueUrl = nanoid(10);
@@ -30,6 +31,7 @@ router.post("/", async (req, res) => {
       autoAccept,
       requireSenderName,
       password,
+      title,
     });
 
     const savedLink = await newLink.save();
