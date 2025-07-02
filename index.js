@@ -37,6 +37,25 @@ io.on("connection", (socket) => {
     console.log(`디바이스 등록: ${deviceId} → ${socket.id}`);
   });
 
+  socket.on("send-file", (data) => {
+    const { deviceId, fileName, fileData, folderPath } = data;
+
+    const targetSocketId = deviceSocketMap.get(deviceId);
+
+    if (!targetSocketId) {
+      socket.emit("send-file-error", "디바이가 오프라인입니다.");
+      return;
+    }
+
+    io.to(targetSocketId).emit("receive-file", {
+      fileName,
+      fileData,
+      folderPath,
+    });
+
+    socket.emit("send-file-success", "파일 전송 완료");
+  });
+
   socket.on("disconnect", () => {
     for (const [deviceId, socketId] of deviceSocketMap.entries()) {
       if (socketId === socket.id) {
