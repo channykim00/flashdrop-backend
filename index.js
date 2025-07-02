@@ -8,6 +8,7 @@ import { Server as SocketIOServer } from "socket.io";
 
 import linkRoutes from "./routes/links/index.js";
 import receiveRoutes from "./routes/receive/index.js";
+import { deviceSocketMap } from "./socket/socketStore.js";
 
 dotenv.config();
 
@@ -27,8 +28,6 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/links", linkRoutes);
 app.use("/api/receive", receiveRoutes);
-
-const deviceSocketMap = new Map();
 
 io.on("connection", (socket) => {
   console.log("소켓 연결됨:", socket.id);

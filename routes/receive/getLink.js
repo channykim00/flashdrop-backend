@@ -15,6 +15,7 @@ router.get("/:uniqueUrl", async (req, res) => {
 
     const filteredLink = {
       title: link.title,
+      deviceId: link.deviceId,
       expireTime: link.expireTime,
       allowedFileTypes: link.allowedFileTypes,
       maxFileSize: link.maxFileSize,
