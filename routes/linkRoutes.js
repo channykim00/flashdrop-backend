@@ -32,13 +32,12 @@ router.post("/", async (req, res) => {
       password,
     });
 
-    await newLink.save();
+    const savedLink = await newLink.save();
 
     res.status(201).json({
       success: true,
       link: {
-        uniqueUrl,
-        fullUrl: `http://localhost:${process.env.PORT || 4000}/r/${uniqueUrl}`,
+        ...savedLink.toObject(),
       },
     });
   } catch (err) {
