@@ -9,7 +9,7 @@ import { Server as SocketIOServer } from "socket.io";
 import linkRoutes from "./routes/links/index.js";
 import receiveRoutes from "./routes/receive/index.js";
 import uploadRoutes from "./routes/upload/index.js";
-import { deviceSocketMap } from "./socket/socketStore.js";
+import { deviceSocketMap, setIoInstance } from "./socket/socketStore.js";
 
 dotenv.config();
 
@@ -21,6 +21,8 @@ const io = new SocketIOServer(server, {
     methods: ["GET", "POST"],
   },
 });
+
+setIoInstance(io);
 
 const PORT = process.env.PORT;
 const MONGO_URI = process.env.MONGO_URI;
