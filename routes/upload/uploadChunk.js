@@ -13,8 +13,9 @@ const CHUNK_TEMP_DIR = "temp_chunks";
 const uploadChunk = [
   upload.single("chunk"),
   async (req, res) => {
-    const { fileId, chunkIndex, totalChunks, uniqueUrl, filename } = req.body;
+    const { fileId, chunkIndex, totalChunks, uniqueUrl, filename, size } = req.body;
     const chunk = req.file?.buffer;
+    const extension = path.extname(filename);
 
     if (!fileId || chunkIndex === undefined || !chunk || !totalChunks || !uniqueUrl) {
       return res.status(400).json({ message: "필수 정보 누락" });
@@ -33,16 +34,20 @@ const uploadChunk = [
     }
 
     const socketId = deviceSocketMap.get(link.deviceId);
-
+    const finalSavePath = link.folderPath;
     if (socketId) {
-      io.to(socketId).emit("receive-chunk", {
-        fileId,
-        chunkIndex: parseInt(chunkIndex),
-        totalChunks: parseInt(totalChunks),
-        chunk,
-        finalSavePath: link.folderPath,
-        extension: path.extname(filename),
-      });
+      if (parseInt(chunkIndex) === 0) {
+        io.to(socketId).emit("request-upload-accept", {
+          fileId,
+          filename,
+          chunkIndex: parseInt(chunkIndex),
+          totalChunks: parseInt(totalChunks),
+          finalSavePath,
+          size,
+          extension,
+          uniqueUrl,
+        });
+      }
     }
 
     const chunkDir = path.join(CHUNK_TEMP_DIR, fileId);
