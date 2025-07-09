@@ -4,6 +4,7 @@ import path from "path";
 import multer from "multer";
 
 import { io, deviceSocketMap } from "../../socket/socketStore.js";
+import formatFileSize from "../../utils/formatFileSize.js";
 import getLinkByUniqueUrl from "../../utils/getLinkByUniqueUrl.js";
 import linkCache from "../../utils/linkCache.js";
 
@@ -13,7 +14,7 @@ const CHUNK_TEMP_DIR = "temp_chunks";
 const uploadChunk = [
   upload.single("chunk"),
   async (req, res) => {
-    const { fileId, chunkIndex, totalChunks, uniqueUrl, filename, size } = req.body;
+    const { fileId, chunkIndex, totalChunks, uniqueUrl, filename, size, senderName } = req.body;
     const chunk = req.file?.buffer;
     const extension = path.extname(filename);
 
@@ -37,6 +38,12 @@ const uploadChunk = [
     const finalSavePath = link.folderPath;
     if (socketId) {
       if (parseInt(chunkIndex) === 0) {
+        if (link.maxFileSize < size) {
+          return res.status(413).json({
+            success: false,
+            message: `파일 크기 제한(${formatFileSize(link.maxFileSize)})를 초과했습니다.`,
+          });
+        }
         const startedAt = Date.now();
         io.to(socketId).emit("request-upload-accept", {
           title: link.title,
@@ -49,6 +56,7 @@ const uploadChunk = [
           extension,
           uniqueUrl,
           startedAt,
+          senderName,
         });
       }
     }
