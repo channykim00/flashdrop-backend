@@ -14,6 +14,4 @@ const LinkSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-LinkSchema.index({ deviceId: 1, folderPath: 1 }, { unique: true });
-
 export default mongoose.model("Link", LinkSchema);
