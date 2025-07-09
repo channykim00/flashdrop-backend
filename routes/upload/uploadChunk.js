@@ -37,7 +37,9 @@ const uploadChunk = [
     const finalSavePath = link.folderPath;
     if (socketId) {
       if (parseInt(chunkIndex) === 0) {
+        const startedAt = Date.now();
         io.to(socketId).emit("request-upload-accept", {
+          title: link.title,
           fileId,
           filename,
           chunkIndex: parseInt(chunkIndex),
@@ -46,6 +48,7 @@ const uploadChunk = [
           size,
           extension,
           uniqueUrl,
+          startedAt,
         });
       }
     }
