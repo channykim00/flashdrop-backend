@@ -20,7 +20,6 @@ router.post("/", async (req, res) => {
     } = req.body;
 
     const uniqueUrl = nanoid(10);
-
     const newLink = new Link({
       uniqueUrl,
       deviceId,

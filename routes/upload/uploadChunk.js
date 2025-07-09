@@ -38,6 +38,14 @@ const uploadChunk = [
     const finalSavePath = link.folderPath;
     if (socketId) {
       if (parseInt(chunkIndex) === 0) {
+        const fileExtension = extension.split(".").pop().toLowerCase();
+        const allowedExt = link.allowedFileTypes;
+        if (allowedExt.length > 0 && !allowedExt.includes(fileExtension)) {
+          return res.status(415).json({
+            success: false,
+            message: `허용되지 않은 파일 형식입니다. (${fileExtension})`,
+          });
+        }
         if (link.maxFileSize < size) {
           return res.status(413).json({
             success: false,

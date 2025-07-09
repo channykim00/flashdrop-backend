@@ -2,7 +2,6 @@ import UploadedFile from "../../models/UploadedFile.js";
 
 const completeUpload = async (req, res) => {
   const { fileId, fileName, totalChunks, uniqueUrl, size } = req.body;
-
   if (!fileId || !fileName || !totalChunks || !uniqueUrl) {
     return res.status(400).json({ message: "필수 정보 누락" });
   }
