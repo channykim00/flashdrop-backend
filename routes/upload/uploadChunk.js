@@ -65,6 +65,7 @@ const uploadChunk = [
           uniqueUrl,
           startedAt,
           senderName,
+          autoAccept: link.autoAccept,
         });
       }
     }
