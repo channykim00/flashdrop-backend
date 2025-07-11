@@ -79,7 +79,6 @@ io.on("connection", (socket) => {
       });
 
     const totalChunks = sortedChunks.length;
-
     for (let i = 0; i < totalChunks; i++) {
       const chunkFile = sortedChunks[i];
       const chunkData = fs.readFileSync(path.join(chunkDir, chunkFile));
@@ -91,6 +90,9 @@ io.on("connection", (socket) => {
         chunk: chunkData,
         finalSavePath: uploadData.finalSavePath,
         extension: uploadData.extension,
+        filename: uploadData.filename,
+        size: uploadData.size,
+        senderName: uploadData.senderName || "",
       });
     }
   });
