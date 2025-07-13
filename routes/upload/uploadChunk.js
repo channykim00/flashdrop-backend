@@ -3,6 +3,7 @@ import path from "path";
 
 import multer from "multer";
 
+import { FILE_TYPE_OPTIONS } from "../../constants.js";
 import { io, deviceSocketMap } from "../../socket/socketStore.js";
 import formatFileSize from "../../utils/formatFileSize.js";
 import getLinkByUniqueUrl from "../../utils/getLinkByUniqueUrl.js";
@@ -39,8 +40,11 @@ const uploadChunk = [
     if (socketId) {
       if (parseInt(chunkIndex) === 0) {
         const fileExtension = extension.split(".").pop().toLowerCase();
-        const allowedExt = link.allowedFileTypes;
-        if (allowedExt.length > 0 && !allowedExt.includes(fileExtension)) {
+        const allowedGroup = link.allowedFileTypeGroup;
+        const allowedExts =
+          FILE_TYPE_OPTIONS.find((opt) => opt.value === allowedGroup)?.extensions || [];
+
+        if (allowedExts.length > 0 && !allowedExts.includes(fileExtension)) {
           return res.status(415).json({
             success: false,
             message: `허용되지 않은 파일 형식입니다. (${fileExtension})`,
