@@ -5,7 +5,7 @@ const LinkSchema = new mongoose.Schema({
   deviceId: { type: String, required: true },
   folderPath: { type: String, required: true },
   expireTime: { type: Number, required: true },
-  allowedFileTypes: { type: [String], default: [] },
+  allowedFileTypeGroup: { type: String, default: "all" },
   maxFileSize: { type: Number, default: 0 },
   autoAccept: { type: Boolean, default: false },
   requireSenderName: { type: Boolean, default: false },
