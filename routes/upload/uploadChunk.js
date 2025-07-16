@@ -1,4 +1,3 @@
-import fs from "fs";
 import path from "path";
 
 import multer from "multer";
@@ -7,9 +6,9 @@ import { FILE_TYPE_OPTIONS } from "../../constants.js";
 import formatFileSize from "../../utils/formatFileSize.js";
 import getLinkByUniqueUrl from "../../utils/getLinkByUniqueUrl.js";
 import linkCache from "../../utils/linkCache.js";
+import { uploadFileToS3 } from "../../utils/uploadToS3.js";
 
 const upload = multer();
-const CHUNK_TEMP_DIR = "temp_chunks";
 
 const uploadChunk = [
   upload.single("chunk"),
@@ -55,29 +54,27 @@ const uploadChunk = [
       }
     }
 
-    const chunkDir = path.join(CHUNK_TEMP_DIR, fileId);
-    if (!fs.existsSync(chunkDir)) {
-      fs.mkdirSync(chunkDir, { recursive: true });
-    }
-
-    const chunkPath = path.join(chunkDir, `chunk-${chunkIndex}`);
-    fs.writeFile(chunkPath, chunk, (err) => {
-      if (err) {
-        console.error("청크 저장 실패:", err);
-        return res.status(500).json({ message: "청크 저장 실패" });
-      }
-
-      const receivedChunks = fs.readdirSync(chunkDir).length;
-      const progress = (receivedChunks / parseInt(totalChunks)) * 100;
+    try {
+      await uploadFileToS3({
+        fileId,
+        chunkIndex,
+        buffer: chunk,
+      });
 
       return res.status(200).json({
-        message: "청크 저장 완료",
+        message: "업로드 완료",
         fileId,
-        receivedChunks,
+        receivedChunks: parseInt(chunkIndex) + 1,
         totalChunks: parseInt(totalChunks),
-        progress: Math.min(100, progress.toFixed(1)),
+        progress: Math.min(
+          100,
+          (((parseInt(chunkIndex) + 1) / parseInt(totalChunks)) * 100).toFixed(1),
+        ),
       });
-    });
+    } catch (err) {
+      console.error("업로드 실패:", err);
+      return res.status(500).json({ message: "업로드 실패" });
+    }
   },
 ];
 

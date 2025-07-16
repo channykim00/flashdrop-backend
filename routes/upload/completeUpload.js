@@ -24,12 +24,8 @@ const completeUpload = async (req, res) => {
 
     let link;
     try {
-      link = linkCache.get(uniqueUrl);
-
-      if (!link) {
-        link = await getLinkByUniqueUrl(uniqueUrl);
-        linkCache.set(uniqueUrl, link);
-      }
+      link = await getLinkByUniqueUrl(uniqueUrl);
+      linkCache.set(uniqueUrl, link);
     } catch (err) {
       console.error("링크 조회 실패:", err);
       return res.status(500).json({ message: "링크 조회 실패" });
@@ -38,7 +34,7 @@ const completeUpload = async (req, res) => {
     const socketId = deviceSocketMap.get(link.deviceId);
     if (!socketId) {
       console.warn("연결된 디바이스가 없음:", link.deviceId);
-      return res.status(200).json({ message: "DB 기록 성공 (연결된 디바이스 없음)" });
+      return res.status(200).json({ message: "DB 기록 성공" });
     }
 
     const extension = path.extname(fileName);
