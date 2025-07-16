@@ -4,7 +4,6 @@ import path from "path";
 import multer from "multer";
 
 import { FILE_TYPE_OPTIONS } from "../../constants.js";
-import { io, deviceSocketMap } from "../../socket/socketStore.js";
 import formatFileSize from "../../utils/formatFileSize.js";
 import getLinkByUniqueUrl from "../../utils/getLinkByUniqueUrl.js";
 import linkCache from "../../utils/linkCache.js";
@@ -15,7 +14,7 @@ const CHUNK_TEMP_DIR = "temp_chunks";
 const uploadChunk = [
   upload.single("chunk"),
   async (req, res) => {
-    const { fileId, chunkIndex, totalChunks, uniqueUrl, filename, size, senderName } = req.body;
+    const { fileId, chunkIndex, totalChunks, uniqueUrl, filename, size } = req.body;
     const chunk = req.file?.buffer;
     const extension = path.extname(filename);
 
@@ -35,41 +34,23 @@ const uploadChunk = [
       return res.status(err.statusCode || 500).json({ message: err.message });
     }
 
-    const socketId = deviceSocketMap.get(link.deviceId);
-    const finalSavePath = link.folderPath;
-    if (socketId) {
-      if (parseInt(chunkIndex) === 0) {
-        const fileExtension = extension.split(".").pop().toLowerCase();
-        const allowedGroup = link.allowedFileTypeGroup;
-        const allowedExts =
-          FILE_TYPE_OPTIONS.find((opt) => opt.value === allowedGroup)?.extensions || [];
+    if (parseInt(chunkIndex) === 0) {
+      const fileExtension = extension.split(".").pop().toLowerCase();
+      const allowedGroup = link.allowedFileTypeGroup;
+      const allowedExts =
+        FILE_TYPE_OPTIONS.find((opt) => opt.value === allowedGroup)?.extensions || [];
 
-        if (allowedExts.length > 0 && !allowedExts.includes(fileExtension)) {
-          return res.status(415).json({
-            success: false,
-            message: `허용되지 않은 파일 형식입니다. (${fileExtension})`,
-          });
-        }
-        if (link.maxFileSize < size) {
-          return res.status(413).json({
-            success: false,
-            message: `파일 크기 제한(${formatFileSize(link.maxFileSize)})를 초과했습니다.`,
-          });
-        }
-        const startedAt = Date.now();
-        io.to(socketId).emit("request-upload-accept", {
-          title: link.title,
-          fileId,
-          filename,
-          chunkIndex: parseInt(chunkIndex),
-          totalChunks: parseInt(totalChunks),
-          finalSavePath,
-          size,
-          extension,
-          uniqueUrl,
-          startedAt,
-          senderName,
-          autoAccept: link.autoAccept,
+      if (allowedExts.length > 0 && !allowedExts.includes(fileExtension)) {
+        return res.status(415).json({
+          success: false,
+          message: `허용되지 않은 파일 형식입니다. (${fileExtension})`,
+        });
+      }
+
+      if (link.maxFileSize < size) {
+        return res.status(413).json({
+          success: false,
+          message: `파일 크기 제한(${formatFileSize(link.maxFileSize)})를 초과했습니다.`,
         });
       }
     }
