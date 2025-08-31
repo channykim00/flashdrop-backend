@@ -12,6 +12,14 @@ const LinkSchema = new mongoose.Schema({
   password: { type: String, default: null },
   title: { type: String, default: "" },
   createdAt: { type: Date, default: Date.now },
+  expireAt: { type: Date },
 });
+
+LinkSchema.pre("save", function (next) {
+  this.expireAt = new Date(Date.now() + this.expireTime * 60 * 1000);
+  next();
+});
+
+LinkSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
 
 export default mongoose.model("Link", LinkSchema);
