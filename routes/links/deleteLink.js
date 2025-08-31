@@ -8,14 +8,7 @@ router.delete("/:uniqueUrl", async (req, res) => {
   try {
     const { uniqueUrl } = req.params;
 
-    const deletedLink = await Link.findOneAndDelete({ uniqueUrl });
-
-    if (!deletedLink) {
-      return res.status(404).json({
-        success: false,
-        message: "해당 링크를 찾을 수 없습니다.",
-      });
-    }
+    await Link.findOneAndDelete({ uniqueUrl });
 
     res.json({
       success: true,
